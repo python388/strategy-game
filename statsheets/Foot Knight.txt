@@ -1,0 +1,15 @@
+name=foot knight
+attack=6
+hp=20
+armor=4
+speed=3
+range=1
+cost=4
+area=0
+damageFalloff=0
+bonuses=structure:4,machine:3,unamormed|light armored|medium armored:2
+tags=infantry,heavy armored,melee,shielded,produced by castle,alive
+image=foot knight.jpeg
+attacks=1
+production=0
+hotkey=a

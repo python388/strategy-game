@@ -1,0 +1,15 @@
+name=great swordsmen
+attack=7
+hp=15
+armor=2
+speed=3
+range=1
+cost=3
+area=1
+damageFalloff=0.5
+bonuses=structure:4,machine:3,infantry:1.5,heavy armored:2
+tags=infantry,medium armored,melee,produced by castle,alive
+image=great swordsmen.jpeg
+attacks=1
+production=0
+hotkey=r

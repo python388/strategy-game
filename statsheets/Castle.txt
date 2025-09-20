@@ -1,0 +1,15 @@
+name=castle
+attack=0
+hp=25
+armor=5
+speed=0
+range=0
+cost=0
+area=0
+damageFalloff=0
+bonuses=nothing:1
+tags=structure,fortified,door,not produced,factory
+image=gate.jpeg
+attacks=0
+production=0
+hotkey=-

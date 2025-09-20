@@ -1,0 +1,15 @@
+name=spearmen
+attack=5
+hp=15
+armor=1
+speed=3
+range=1
+cost=2
+area=0
+damageFalloff=0
+bonuses=machine:2.5,cavalry!heavy armored:3,cavalry:2.5
+tags=infantry,melee,light armored,spear,produced by castle,alive
+image=spearmen.jpeg
+attacks=1
+production=0
+hotkey=e

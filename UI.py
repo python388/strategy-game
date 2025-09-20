@@ -1,0 +1,136 @@
+import pygame
+import math
+
+class UI(object):
+  
+    def __init__(self, width, surface, UIstartX, UIstartY, *buttons):
+        self.buttons = list(buttons)
+        self.width = width
+        self.surface = surface
+        self.UIstartY = UIstartY
+        self.UIstartX = UIstartX
+        self.currentButtonList = []
+        self.keybinds = []
+        for button in self.buttons:
+          button.x += self.width
+
+    def doClick(self, location):
+        for button in self.buttons:
+            if location[0] >= button.x and location[0] <= button.x+button.width and location[1] >= button.y and location[1] <= button.y+button.height:
+                button.eventWhenClick()
+
+    def drawText(self, x, y, write):
+        font = pygame.font.Font(None, 20)
+        text = font.render(write.encode('utf-8'), True, (0, 0, 0))
+        self.surface.blit(text, (x, y))
+        # [ord(char) for char in text]
+        
+    def displayStats(self, unit):
+        # Basic stats
+        self.drawText(self.UIstartX, self.UIstartY-15, 'Attack:')
+        self.drawText(self.UIstartX, self.UIstartY, str(unit.getAttack()))
+        self.drawText(self.UIstartX+50, self.UIstartY-15 , 'Health:')
+        self.drawText(self.UIstartX+50, self.UIstartY, f'{str(unit.getHp())}/{str(unit.getMaxHp())}')
+        self.drawText(self.UIstartX, self.UIstartY+15, 'armor:')
+        self.drawText(self.UIstartX, self.UIstartY+30, str(unit.getArmor()))
+        self.drawText(self.UIstartX+50, self.UIstartY+15, 'attacks:')
+        self.drawText(self.UIstartX+50, self.UIstartY+30, str(unit.getAttacks()))
+        self.drawText(self.UIstartX, self.UIstartY+45, unit.getName())
+        
+        # Construction status
+        if unit.is_under_construction():
+            self.drawText(self.UIstartX, self.UIstartY+60, f'Under Construction: {unit.get_build_progress()}/{unit.get_build_cost()}')
+        
+        # Status effects
+        status_effects_text = unit.get_status_effects_display()
+        if status_effects_text:
+            self.drawText(self.UIstartX, self.UIstartY+75, 'Status Effects:')
+            # Split long status effect text into multiple lines if needed
+            if len(status_effects_text) > 20:
+                # Split into chunks of 20 characters
+                lines = [status_effects_text[i:i+20] for i in range(0, len(status_effects_text), 20)]
+                for i, line in enumerate(lines[:3]):  # Show max 3 lines
+                    self.drawText(self.UIstartX, self.UIstartY+90+i*15, line)
+            else:
+                self.drawText(self.UIstartX, self.UIstartY+90, status_effects_text)
+        
+        # On-hit status effect info
+        if hasattr(unit, 'status_on_hit') and unit.status_on_hit:
+            self.drawText(self.UIstartX, self.UIstartY+135, f'On Hit: {unit.status_on_hit.replace("_", " ").title()}')
+
+    def showPlayerInfo(self, player):
+        self.drawText(self.UIstartX+105, self.UIstartY-30, 'money:')
+        self.drawText(self.UIstartX+155, self.UIstartY-30, str(player.getMoney()))
+    
+    def displayHotkeys(self):
+        startY = 500
+        for hotkey, function, name in self.keybinds:
+            self.drawText(self.UIstartX, startY, f'{hotkey}: {name}')
+            startY += 15
+    
+    def display_turn_count(self, turnCount):
+        self.drawText(self.UIstartX+105, self.UIstartY-45, 'turn:')
+        self.drawText(self.UIstartX+155, self.UIstartY-45, str(math.floor(turnCount)))
+
+    def drawButtons(self):
+        for button in self.buttons:
+            self.drawButton(button)
+
+    def clearButtons(self):
+        for button in self.currentButtonList:
+            self.buttons.remove(button)
+        self.currentButtonList = []
+
+    def generateButtons(self, *nameFuncsLst):
+        start_pos = self.UIstartY + 65
+        self.currentButtonList = []
+        for name, function in nameFuncsLst:
+            self.currentButtonList.append(Button(
+                x = self.UIstartX,
+                y = start_pos,
+                width = 150,
+                height = 15,
+                label = name,
+                eventWhenClick=function
+            ))
+            self.buttons.append(self.currentButtonList[-1])
+            start_pos += 20
+
+    def generateHotkeys(self, *hotkeyFuncsLst):
+        self.keybinds = []
+        for hotkey, function, name in hotkeyFuncsLst:
+            self.keybinds.append((hotkey, function, name))
+
+    def handle_keypress(self, key):
+        for hotkey, function, name in self.keybinds:
+            if key == hotkey:
+                function()
+
+    def drawButton(self, button):
+        pygame.draw.rect(self.surface, (0, 128, 255), [button.getX(), button.getY(), button.getWidth(), button.getHeight()])
+        self.drawText(button.getX(), button.getY(), button.getLabel())
+  
+class Button(object):
+  
+    def __init__(self, x, y, width, height, label, eventWhenClick):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.label = label
+        self.eventWhenClick = eventWhenClick
+
+    def getX(self):
+        return self.x
+    
+    def getY(self):
+        return self.y
+    
+    def getLabel(self):
+        return self.label
+    
+    def getWidth(self):
+        return self.width
+    
+    def getHeight(self):
+        return self.height

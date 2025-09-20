@@ -1,0 +1,15 @@
+name=archer
+attack=5
+hp=10
+armor=1
+speed=3
+range=4
+cost=2
+area=0
+damageFalloff=0
+bonuses=unarmored!shielded|fast:1.5,light armored!shielded|fast:1.2
+tags=infantry,light armored,ranged,archer,light,produced by castle,alive
+image=archer.jpeg
+attacks=1
+production=0
+hotkey=q

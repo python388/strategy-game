@@ -1,0 +1,15 @@
+name=swordsmen
+attack=6
+hp=15
+armor=2
+speed=3
+range=1
+cost=2
+area=0
+damageFalloff=0
+bonuses=structure|machine:3,unamormed!archer:2,light armored:1.5
+tags=infantry,melee,medium armored,produced by castle,alive
+image=swordsmen.jpeg
+attacks=1
+production=0
+hotkey=w

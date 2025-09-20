@@ -1,0 +1,15 @@
+name=builder
+attack=0
+hp=10
+armor=0
+speed=3
+range=0
+cost=3
+area=0
+damageFalloff=0
+bonuses=nothing:1
+tags=infantry,light,builder,produced by castle,alive
+image=builder.jpeg
+attacks=1
+production=0
+hotkey=s
