@@ -46,7 +46,7 @@ class GameBoard:
         y = math.floor(position[1] / tile_dimensions)
         return self.tile_at(x, y)
     
-    def initialize_unit(self, x, y, file_name, player_id, tile_dimensions=40, prebuilt=False):
+    def initialize_unit(self, x: int, y: int, file_name: str, player_id: bool, tile_dimensions=40, prebuilt=False):
         """Add a unit to the board"""
         tile = self.tile_at(x, y)
         if tile:
@@ -324,11 +324,11 @@ class GameBoard:
     # ECONOMIC SYSTEM
     # ==========================================================================
     
-    def buy_unit(self, x, y, unit):
+    def buy_unit(self, x, y, unit, dimensions):
         """Purchase and place a unit"""
         test_unit = statreader.unitFromStatsheet('statsheets/' + unit, self.player_acting)
         if self.player_acting.getMoney() >= test_unit.getCost():
-            self.initialize_unit(x, y, 'statsheets/' + unit, self.player_acting.getTeam())
+            self.initialize_unit(x, y, 'statsheets/' + unit, self.player_acting.getTeam(), dimensions)
             self.player_acting.spendMoney(test_unit.getCost())
             return True
         else:
@@ -343,7 +343,9 @@ class GameBoard:
                 income += unit.getProduction()
         player.makeIncome(income)
     
-    def units_of_player(self, player):
+
+
+
         """Get all units belonging to a player"""
         unit_list = []
         for y in self.tiles:
@@ -379,7 +381,7 @@ class GameBoard:
     def production_function(self):
         pass
 
-    def unit_production_functions_from(self, x, y):
+    def unit_production_functions_from(self, x, y, dimensions):
         """Get production functions for a tile (for UI)"""
         produceable_unit_functions = []
         empty_tiles = self.empty_surrounding_tiles(x, y)
@@ -393,7 +395,7 @@ class GameBoard:
             else:
                 def click_function(statsheet_name):
                     def production_function(self, x, y):
-                        self.buy_unit(x, y, statsheet_name)
+                        self.buy_unit(x, y, statsheet_name, dimensions)
                         self.click_state = 'choosing action'
                         if 'builder' in self.selected_tile.getUnit().getTags():
                             self.selected_tile.getUnit().do_action()
@@ -407,7 +409,7 @@ class GameBoard:
         
         return produceable_unit_functions
     
-    def hotkey_functions_from(self, x, y):
+    def hotkey_functions_from(self, x, y, dimensions):
         hotkey_functions = []
         empty_tiles = self.empty_surrounding_tiles(x, y)
         produceableUnits = self.statreader.units_with_tag(f'produced by {self.tile_at(x, y).getUnit().getName()}')
@@ -420,7 +422,7 @@ class GameBoard:
             else:
                 def click_function(statsheet_name):
                     def production_function(self, x, y):
-                        self.buy_unit(x, y, statsheet_name)
+                        self.buy_unit(x, y, statsheet_name, dimensions)
                         self.click_state = 'choosing action'
                         if 'builder' in self.selected_tile.getUnit().getTags():
                             self.selected_tile.getUnit().do_action()
@@ -467,3 +469,8 @@ class GameBoard:
 
     def get_turn(self):
         return self.turn_count
+    
+    def get_units(self) -> iter:
+        for tile in self.tiles:
+            if tile.get_unit():
+                yield tile.get_unit()

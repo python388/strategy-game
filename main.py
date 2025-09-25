@@ -8,7 +8,7 @@ from colors import COLORS
 # Game Constants
 FPS = 60
 WINDOW_TITLE = "Strategy Game"
-TILE_SIZE = 40
+TILE_SIZE = 30
 BOARD_WIDTH = 10
 BOARD_HEIGHT = 20
 
@@ -25,7 +25,7 @@ class StrategyGame:
             width=BOARD_WIDTH, 
             height=BOARD_HEIGHT
         )
-        
+
         # Create renderer (handles all pygame/visual stuff)
         self.renderer = BoardRenderer(self.game_board, TILE_SIZE)
         
@@ -54,24 +54,24 @@ class StrategyGame:
         """Helper to build one player's castle complex"""
         # Main wall (6 tiles wide)
         for i in range(6):
-            self.game_board.initialize_unit(i+2, wall_y, 'statsheets/Wall.txt', player_id, prebuilt=True)
+            self.game_board.initialize_unit(i+2, wall_y, 'statsheets/Wall.txt', player_id, prebuilt=True, tile_dimensions=30)
         
         # Side walls (3 tiles high on each side)
         wall_start_y = 0 if player_id == 0 else 17
         for i in range(3):
-            self.game_board.initialize_unit(2, wall_start_y + i, 'statsheets/Wall.txt', player_id, prebuilt=True)
-            self.game_board .initialize_unit(7, wall_start_y + i, 'statsheets/Wall.txt', player_id, prebuilt=True)
+            self.game_board.initialize_unit(2, wall_start_y + i, 'statsheets/Wall.txt', player_id, prebuilt=True, tile_dimensions=30)
+            self.game_board .initialize_unit(7, wall_start_y + i, 'statsheets/Wall.txt', player_id, prebuilt=True, tile_dimensions=30)
         
         # Gates (2 tiles for entrance)
-        self.game_board.initialize_unit(4, gate_y, 'statsheets/Gate.txt', player_id, prebuilt=True)
-        self.game_board.initialize_unit(5, gate_y, 'statsheets/Gate.txt', player_id, prebuilt=True)
+        self.game_board.initialize_unit(4, gate_y, 'statsheets/Gate.txt', player_id, prebuilt=True, tile_dimensions=30)
+        self.game_board.initialize_unit(5, gate_y, 'statsheets/Gate.txt', player_id, prebuilt=True, tile_dimensions=30)
         
         # Defensive archer
-        self.game_board.initialize_unit(5, archer_y, 'statsheets/Archer.txt', player_id)
+        self.game_board.initialize_unit(5, archer_y, 'statsheets/Archer.txt', player_id, tile_dimensions=30)
         
         # Castle (command center) and Farm (economy)
-        self.game_board.initialize_unit(5, castle_y, 'statsheets/Castle.txt', player_id, prebuilt=True)
-        self.game_board.initialize_unit(4, castle_y, 'statsheets/Farm.txt', player_id, prebuilt=True)
+        self.game_board.initialize_unit(5, castle_y, 'statsheets/Castle.txt', player_id, prebuilt=True, tile_dimensions=30)
+        self.game_board.initialize_unit(4, castle_y, 'statsheets/Farm.txt', player_id, prebuilt=True, tile_dimensions=30)
     
     def handle_events(self):
         """Process all pygame events"""
@@ -84,6 +84,9 @@ class StrategyGame:
             
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 self.handle_mouse_click(event.pos, event.button)
+            
+            elif event.type == pygame.VIDEORESIZE:
+                self.handle_resize(event)
     
     def handle_keypress(self, key):
         """Handle keyboard input"""
@@ -104,6 +107,9 @@ class StrategyGame:
                 self.renderer.UI.handle_keypress(chr(key))
             except:
                 print(str(key) + " (not convertible to character via ascii)")
+
+    def handle_resize(self, event: pygame.event) -> None:
+        self.renderer.resize_window(event)
 
     def handle_mouse_click(self, pos, button):
         """Handle mouse clicks"""

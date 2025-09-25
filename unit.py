@@ -247,7 +247,7 @@ class Unit(object):
             return False
 
     def getStatsheetName(self):
-        return f'{self.name[0].capitalize()}{self.name[1:]}.txt'
+        return f'{self.name.title()}.txt'
 
     def damageTo(self, target):
         return self.getAttack() * self.bonuses.bonusAgainst(target)
