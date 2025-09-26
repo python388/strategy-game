@@ -1,7 +1,7 @@
 import pygame
 import math
 REFERENCE_FONT_SIZE = 20
-BASE_SCALE = 600
+BASE_SCALE = (600, 800)
 
 
 class UI(object):
@@ -14,9 +14,11 @@ class UI(object):
         self.UIstartX = UIstartX
         self.currentButtonList = []
         self.keybinds = []
-        self.window_width = BASE_SCALE
+        self.window_width = BASE_SCALE[0]
+        self.window_height = BASE_SCALE[1]
         self.font_size = REFERENCE_FONT_SIZE
-        self.scaler = 1
+        self.x_scaler = 1
+        self.y_scaler = 1
         for button in self.buttons:
             button.x += self.width
         self.next_turn_x = buttons[0].x - self.width # Assuming the first button is "next turn"
@@ -64,21 +66,21 @@ class UI(object):
         
         # On-hit status effect info
         if hasattr(unit, 'status_on_hit') and unit.status_on_hit:
-            self.drawText(self.UIstartX, self.UIstartY+135, f'On Hit: {unit.status_on_hit.replace("_", " ").title()}')
+            self.drawText(self.UIstartX, self.UIstartY+(135 * self.y_scaler), f'On Hit: {unit.status_on_hit.replace("_", " ").title()}')
 
     def showPlayerInfo(self, player):
-        self.drawText(self.UIstartX+105, self.UIstartY-30, 'money:')
-        self.drawText(self.UIstartX+155, self.UIstartY-30, str(player.getMoney()))
+        self.drawText(self.UIstartX+(105 * self.x_scaler), self.UIstartY-(30 * self.y_scaler), 'money:')
+        self.drawText(self.UIstartX+(155 * self.x_scaler), self.UIstartY-(30 * self.y_scaler), str(player.getMoney()))
     
     def displayHotkeys(self):
-        startY = 500
+        startY = 500 * self.y_scaler
         for hotkey, function, name in self.keybinds:
             self.drawText(self.UIstartX, startY, f'{hotkey}: {name}')
-            startY += 15
+            startY += (15 * self.y_scaler)
     
     def display_turn_count(self, turnCount):
-        self.drawText(self.UIstartX+105, self.UIstartY-45, 'turn:')
-        self.drawText(self.UIstartX+155, self.UIstartY-45, str(math.floor(turnCount)))
+        self.drawText(self.UIstartX+(105 * self.x_scaler), self.UIstartY-(45 * self.y_scaler), 'turn:')
+        self.drawText(self.UIstartX+(155 * self.x_scaler), self.UIstartY-(45 * self.y_scaler), str(math.floor(turnCount)))
 
     def drawButtons(self):
         for button in self.buttons:
@@ -123,18 +125,27 @@ class UI(object):
         self.UIstartY = y
 
     def set_board_width(self, width: int) -> None:
-        self.width = width
-
-    def change_window_width(self, width: int) -> None:
         self.window_width = width
-        self.scaler = self.window_width / BASE_SCALE
-        self.font_size = int(REFERENCE_FONT_SIZE * self.scaler)
+
+    def change_window_width(self, width: int) -> int:
+        self.window_width = width
+        self.x_scaler = self.window_width / BASE_SCALE[0]
+        return int(REFERENCE_FONT_SIZE * self.x_scaler)
+
+    def change_window_height(self, height: int) -> int:
+        self.window_height = height
+        self.y_scaler = self.window_height / BASE_SCALE[1]
+        return int(REFERENCE_FONT_SIZE * self.y_scaler)
+    
+    def update_dimensions(self, width, height) -> None:
+        self.font_size = min(self.change_window_width(width), self.change_window_height(height))
 
     def change_next_turn_button(self) -> None:
         for button in self.buttons:
             if button.getLabel() == "next turn":
-                button.x = int(self.next_turn_x * self.scaler) + self.width
-                button.width = int(self.next_turn_width * self.scaler)
+                button.x = int(self.next_turn_x * self.x_scaler) + self.window_width
+                button.width = int(self.next_turn_width * self.x_scaler)
+                print(button.x, button.width)
   
 class Button(object):
   

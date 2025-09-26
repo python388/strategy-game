@@ -60,7 +60,7 @@ class BoardRenderer:
         self.board_width = self.tile_dimensions * self.game_board.get_width()
         self.ui_width = 5 * self.tile_dimensions
         self.resize_units()
-        self.UI.set_board_width(self.board_width)
+        self.UI.update_dimensions(self.window_width, self.window_height)
         self.UI.change_window_width(self.window_width)
         self.UI.set_start(self.board_width + 20, 65)
         self.UI.change_next_turn_button()
