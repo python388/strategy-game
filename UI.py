@@ -1,5 +1,8 @@
 import pygame
 import math
+REFERENCE_FONT_SIZE = 20
+BASE_SCALE = 600
+
 
 class UI(object):
   
@@ -11,8 +14,13 @@ class UI(object):
         self.UIstartX = UIstartX
         self.currentButtonList = []
         self.keybinds = []
+        self.window_width = BASE_SCALE
+        self.font_size = REFERENCE_FONT_SIZE
+        self.scaler = 1
         for button in self.buttons:
-          button.x += self.width
+            button.x += self.width
+        self.next_turn_x = buttons[0].x - self.width # Assuming the first button is "next turn"
+        self.next_turn_width = buttons[0].width
 
     def doClick(self, location):
         for button in self.buttons:
@@ -20,7 +28,7 @@ class UI(object):
                 button.eventWhenClick()
 
     def drawText(self, x, y, write):
-        font = pygame.font.Font(None, 20)
+        font = pygame.font.Font(None, self.font_size)
         text = font.render(write.encode('utf-8'), True, (0, 0, 0))
         self.surface.blit(text, (x, y))
         # [ord(char) for char in text]
@@ -109,6 +117,24 @@ class UI(object):
     def drawButton(self, button):
         pygame.draw.rect(self.surface, (0, 128, 255), [button.getX(), button.getY(), button.getWidth(), button.getHeight()])
         self.drawText(button.getX(), button.getY(), button.getLabel())
+        
+    def set_start(self, x: int, y: int) -> None:
+        self.UIstartX = x
+        self.UIstartY = y
+
+    def set_board_width(self, width: int) -> None:
+        self.width = width
+
+    def change_window_width(self, width: int) -> None:
+        self.window_width = width
+        self.scaler = self.window_width / BASE_SCALE
+        self.font_size = int(REFERENCE_FONT_SIZE * self.scaler)
+
+    def change_next_turn_button(self) -> None:
+        for button in self.buttons:
+            if button.getLabel() == "next turn":
+                button.x = int(self.next_turn_x * self.scaler) + self.width
+                button.width = int(self.next_turn_width * self.scaler)
   
 class Button(object):
   

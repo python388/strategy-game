@@ -5,6 +5,7 @@ import statreader
 import player
 from collections import deque
 import copy
+import unit
 
 class GameBoard:
     """Handles pure game logic - no rendering or pygame dependencies"""
@@ -56,10 +57,10 @@ class GameBoard:
                 tile.addUnit(statreader.unitFromStatsheet(file_name, self.player0, tile_dimensions, prebuilt=prebuilt))
     
     def set_click_state(self):
-        if not(self.selected_tile) or self.selected_tile.getUnit() == None:
+        if not(self.selected_tile) or self.selected_tile.get_unit() == None:
             self.click_state = 'nothing selected'
-        elif self.selected_tile.getUnit() != None:
-            if self.selected_tile.getUnit().getPlayer() == self.player_acting:
+        elif self.selected_tile.get_unit() != None:
+            if self.selected_tile.get_unit().getPlayer() == self.player_acting:
                 if self.second_selected_tile:
                     self.click_state = 'confirming movement'
                 elif self.targeted_tile:
@@ -96,16 +97,16 @@ class GameBoard:
         elif self.click_state == 'confirming build':
             if tile_clicked == self.building_tile:
                 actions.append(('build', self.selected_tile, self.building_tile))
-                self.building_tile.getUnit().construct_tick()
-                self.selected_tile.getUnit().do_action()
+                self.building_tile.get_unit().construct_tick()
+                self.selected_tile.get_unit().do_action()
                 self.clear_tile_selection()
             else:
                 self.choose_action(tile_clicked)
         elif self.click_state == 'choosing action':
             self.choose_action(tile_clicked)
         elif self.click_state == 'producing unit or acting':
-            if tile_clicked in self.empty_surrounding_tiles(self.selected_tile.getX(), self.selected_tile.getY()):
-                self.production_function(self, tile_clicked.getX(), tile_clicked.getY())
+            if tile_clicked in self.empty_surrounding_tiles(self.selected_tile.get_x(), self.selected_tile.get_y()):
+                self.production_function(self, tile_clicked.get_x(), tile_clicked.get_y())
             else:
                 self.choose_action()
         else:
@@ -117,9 +118,9 @@ class GameBoard:
     
     def move(self, start, destination):
         """Move a unit from start to destination"""
-        if start.getUnit():
-            start.getUnit().doMove()
-            destination.addUnit(start.getUnit())
+        if start.get_unit():
+            start.get_unit().doMove()
+            destination.addUnit(start.get_unit())
             start.removeUnit()
     
     def choose_action(self, tile_clicked):
@@ -132,8 +133,8 @@ class GameBoard:
             self.clear_tile_selection
             self.targeted_tile = tile_clicked
             acted = 1
-        elif 'builder' in self.selected_tile.getUnit().getTags():
-            if tile_clicked in self.buildable_tiles_from(self.selected_tile) and self.selected_tile.getUnit().getAttacks() >= 1:
+        elif 'builder' in self.selected_tile.get_unit().getTags():
+            if tile_clicked in self.buildable_tiles_from(self.selected_tile) and self.selected_tile.get_unit().getAttacks() >= 1:
                 self.clear_tile_selection
                 self.building_tile = tile_clicked
                 acted = 1
@@ -143,28 +144,28 @@ class GameBoard:
 
     def attack(self, start, target):
         """Handle combat between units, including status effects"""
-        if not(start.getUnit()):
+        if not(start.get_unit()):
             return
             
-        if target.getUnit().getPlayer() != start.getUnit().getPlayer():
+        if target.get_unit().getPlayer() != start.get_unit().getPlayer():
             # Calculate and apply damage
-            damage = start.getUnit().damageTo(target.getUnit())
+            damage = start.get_unit().damageTo(target.get_unit())
             target.damageUnit(damage)
             
             # Apply status effect on hit if the unit has one
-            start.getUnit().apply_status_on_hit(target.getUnit())
+            start.get_unit().apply_status_on_hit(target.get_unit())
             
             # Handle area damage
-            if start.getUnit().getArea() > 0:
-                for tile in self.tiles_with_enemy_units_in_area(target.getX(), target.getY(), start.getUnit().getArea()):
-                    damage = start.getUnit().damageTo(tile.getUnit())
-                    falloff = start.getUnit().getDamageFalloff() ** self.distance_between(target, tile)
+            if start.get_unit().getArea() > 0:
+                for tile in self.tiles_with_enemy_units_in_area(target.get_x(), target.get_y(), start.get_unit().getArea()):
+                    damage = start.get_unit().damageTo(tile.get_unit())
+                    falloff = start.get_unit().getDamageFalloff() ** self.distance_between(target, tile)
                     tile.damageUnit(damage * falloff)
                     
                     # Apply status effects to area damage targets too
-                    start.getUnit().apply_status_on_hit(tile.getUnit())
+                    start.get_unit().apply_status_on_hit(tile.get_unit())
 
-        start.getUnit().doAttack()
+        start.get_unit().doAttack()
     
     def next_turn(self):
         """Advance to next turn"""
@@ -176,10 +177,10 @@ class GameBoard:
         units_to_remove = []
         for row in self.tiles:
             for square in row:
-                if square.getUnit():
-                    if square.getUnit().getPlayer() == self.player_acting:
+                if square.get_unit():
+                    if square.get_unit().getPlayer() == self.player_acting:
                         # Process status effects first
-                        unit_died = square.getUnit().process_status_effects()
+                        unit_died = square.get_unit().process_status_effects()
                         if unit_died:
                             units_to_remove.append(square)
         
@@ -190,9 +191,9 @@ class GameBoard:
         # THEN do normal turn processing (attacks, movement reset) for surviving units
         for row in self.tiles:
             for square in row:
-                if square.getUnit():
+                if square.get_unit():
                     # Reset attacks and movement without processing status effects again
-                    square.getUnit().nextTurn()
+                    square.get_unit().nextTurn()
         
         # Switch active player
         if self.player_acting == self.player0:
@@ -211,13 +212,13 @@ class GameBoard:
         """Get all tiles a unit can move to"""
         move_options = []
 
-        if start_tile.getUnit():
-            possible_moves = self.get_reachable_squares(start_tile, start_tile.getUnit().getSpeed())
-            if start_tile.getUnit().canMove() and start_tile.getUnit().getPlayer() == self.player_acting:
+        if start_tile.get_unit():
+            possible_moves = self.get_reachable_squares(start_tile, start_tile.get_unit().getSpeed())
+            if start_tile.get_unit().canMove() and start_tile.get_unit().getPlayer() == self.player_acting:
                 for move in possible_moves:
                     square = self.tiles[move[1]][move[0]]
                     if square.occupiable() and square != start_tile:
-                        if self.distance_between(start_tile, square) <= start_tile.getUnit().getSpeed():
+                        if self.distance_between(start_tile, square) <= start_tile.get_unit().getSpeed():
                             move_options.append(square)
         
         return move_options
@@ -225,11 +226,11 @@ class GameBoard:
     def buildable_tiles_from(self, start_tile):
         build_options = []
 
-        if start_tile.getUnit():
-            possible_builds = self.surrounding_tiles(start_tile.getX(), start_tile.getY())
+        if start_tile.get_unit():
+            possible_builds = self.surrounding_tiles(start_tile.get_x(), start_tile.get_y())
             for build in possible_builds:
-                if build.getUnit():
-                    if build.getUnit().is_under_construction() and build.getUnit().getPlayer() == self.player_acting:
+                if build.get_unit():
+                    if build.get_unit().is_under_construction() and build.get_unit().getPlayer() == self.player_acting:
                         build_options.append(build)
         
         return build_options
@@ -254,8 +255,8 @@ class GameBoard:
     def tiles_with_enemy_units_in_area(self, x, y, area):
         enemy_units_tiles = []
         for tile in self.tiles_in_area(x, y, area):
-            if tile.getUnit():
-                if tile.getUnit().getPlayer() != self.player_acting:
+            if tile.get_unit():
+                if tile.get_unit().getPlayer() != self.player_acting:
                     enemy_units_tiles.append(tile)
         return enemy_units_tiles
 
@@ -263,13 +264,13 @@ class GameBoard:
         """Get all tiles a unit can attack"""
         attackable_squares = []
         
-        if start_tile.getUnit():
-            if start_tile.getUnit().getAttacks() and start_tile.getUnit().getPlayer() == self.player_acting:
+        if start_tile.get_unit():
+            if start_tile.get_unit().getAttacks() and start_tile.get_unit().getPlayer() == self.player_acting:
                 for row in self.tiles:
                     for tile in row:
-                        if start_tile.getUnit() and tile.getUnit():
-                            if (tile.getUnit().getPlayer() != start_tile.getUnit().getPlayer() and 
-                                self.distance_between(start_tile, tile) <= start_tile.getUnit().getRange()):
+                        if start_tile.get_unit() and tile.get_unit():
+                            if (tile.get_unit().getPlayer() != start_tile.get_unit().getPlayer() and 
+                                self.distance_between(start_tile, tile) <= start_tile.get_unit().getRange()):
                                 attackable_squares.append(tile)
         
         return attackable_squares
@@ -280,7 +281,7 @@ class GameBoard:
         cols = len(self.tiles[0])
         
         directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
-        queue = deque([(start.getX(), start.getY(), 0)])
+        queue = deque([(start.get_x(), start.get_y(), 0)])
         visited = set()
         visited.add(start)
         reachable = []
@@ -307,7 +308,7 @@ class GameBoard:
     
     def distance_between(self, tile1, tile2):
         """Calculate Manhattan distance between tiles"""
-        return abs(tile1.getX() - tile2.getX()) + abs(tile1.getY() - tile2.getY())
+        return abs(tile1.get_x() - tile2.get_x()) + abs(tile1.get_y() - tile2.get_y())
     
     def tiles_in_range(self, start_tile, range_val):
         """Generator for all tiles within range"""
@@ -345,14 +346,14 @@ class GameBoard:
     
 
 
-
+    def units_of_player(self, player: player.Player) -> list:
         """Get all units belonging to a player"""
         unit_list = []
         for y in self.tiles:
             for tile in y:
-                if tile.getUnit():
-                    if tile.getUnit().getPlayer() == player:
-                        unit_list.append(tile.getUnit())
+                if tile.get_unit():
+                    if tile.get_unit().getPlayer() == player:
+                        unit_list.append(tile.get_unit())
         return unit_list
     
     # ==========================================================================
@@ -385,20 +386,20 @@ class GameBoard:
         """Get production functions for a tile (for UI)"""
         produceable_unit_functions = []
         empty_tiles = self.empty_surrounding_tiles(x, y)
-        produceableUnits = self.statreader.units_with_tag(f'produced by {self.tile_at(x, y).getUnit().getName()}')
+        produceableUnits = self.statreader.units_with_tag(f'produced by {self.tile_at(x, y).get_unit().getName()}')
 
         for statsheet_name in produceableUnits:
             if not empty_tiles:
                 produceable_unit_functions.append((statsheet_name[0:-4] + ' No Space', lambda: None))
-            elif 'builder' in self.selected_tile.getUnit().getTags() and self.selected_tile.getUnit().getAttacks() == 0:
+            elif 'builder' in self.selected_tile.get_unit().getTags() and self.selected_tile.get_unit().getAttacks() == 0:
                 produceable_unit_functions.append((statsheet_name[0:-4] + ' No Action', lambda: None))
             else:
                 def click_function(statsheet_name):
                     def production_function(self, x, y):
                         self.buy_unit(x, y, statsheet_name, dimensions)
                         self.click_state = 'choosing action'
-                        if 'builder' in self.selected_tile.getUnit().getTags():
-                            self.selected_tile.getUnit().do_action()
+                        if 'builder' in self.selected_tile.get_unit().getTags():
+                            self.selected_tile.get_unit().do_action()
                     self.production_function = production_function
                     self.click_state = 'producing unit or acting'
                     self.clear_tile_selection()
@@ -412,20 +413,20 @@ class GameBoard:
     def hotkey_functions_from(self, x, y, dimensions):
         hotkey_functions = []
         empty_tiles = self.empty_surrounding_tiles(x, y)
-        produceableUnits = self.statreader.units_with_tag(f'produced by {self.tile_at(x, y).getUnit().getName()}')
+        produceableUnits = self.statreader.units_with_tag(f'produced by {self.tile_at(x, y).get_unit().getName()}')
         
         for statsheet_name in produceableUnits:
             if not empty_tiles:
                 pass
-            elif 'builder' in self.selected_tile.getUnit().getTags() and self.selected_tile.getUnit().getAttacks() == 0:
+            elif 'builder' in self.selected_tile.get_unit().getTags() and self.selected_tile.get_unit().getAttacks() == 0:
                 pass
             else:
                 def click_function(statsheet_name):
                     def production_function(self, x, y):
                         self.buy_unit(x, y, statsheet_name, dimensions)
                         self.click_state = 'choosing action'
-                        if 'builder' in self.selected_tile.getUnit().getTags():
-                            self.selected_tile.getUnit().do_action()
+                        if 'builder' in self.selected_tile.get_unit().getTags():
+                            self.selected_tile.get_unit().do_action()
                     self.production_function = production_function
                     self.click_state = 'producing unit or acting'
                     self.clear_tile_selection()
@@ -471,6 +472,13 @@ class GameBoard:
         return self.turn_count
     
     def get_units(self) -> iter:
-        for tile in self.tiles:
-            if tile.get_unit():
-                yield tile.get_unit()
+        for row in self.tiles:
+            for tile in row:
+                if tile.get_unit():
+                    yield tile.get_unit()
+
+    def tile_of_unit(self, unit: unit.Unit) -> None:
+        for row in self.tiles:
+            for tile in row:
+                if tile.get_unit() == unit:
+                    return tile

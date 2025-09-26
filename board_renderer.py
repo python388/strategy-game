@@ -56,13 +56,23 @@ class BoardRenderer:
     def resize_window(self, event: pygame.event) -> None:
         # Update the screen surface to the new size
         self.window_width, self.window_height = self.window.get_size()
-        print(self.window_width, self.window_height)
         self.tile_dimensions = min(int(self.window_width/(self.game_board.get_width() + 5)), int(self.window_height/self.game_board.get_height()))
-        print(self.tile_dimensions)
+        self.board_width = self.tile_dimensions * self.game_board.get_width()
+        self.ui_width = 5 * self.tile_dimensions
+        self.resize_units()
+        self.UI.set_board_width(self.board_width)
+        self.UI.change_window_width(self.window_width)
+        self.UI.set_start(self.board_width + 20, 65)
+        self.UI.change_next_turn_button()
         print(f"Window resized to: {self.window_width}x{self.window_height}")
 
     def resize_units(self) -> None:
-        for unit in self.game_board.
+        for unit in self.game_board.get_units():
+            unit.set_image(pygame.transform.scale(unit.get_original_image(), (self.tile_dimensions, self.tile_dimensions)))
+            tile = self.game_board.tile_of_unit(unit)
+            screen_x = self.tile_dimensions * tile.get_x()
+            screen_y = self.tile_dimensions * tile.get_y()
+            self.window.blit(unit.get_image(), (screen_x, screen_y))
     
     def update_all(self) -> None:
         """Update all visual elements"""
@@ -94,8 +104,8 @@ class BoardRenderer:
 
         if selected:
             self.change_color(COLORS.RED, selected)
-            if selected.getUnit():
-                self.UI.displayStats(selected.getUnit())
+            if selected.get_unit():
+                self.UI.displayStats(selected.get_unit())
 
         if building:
             self.change_color(COLORS.GREEN, building)
@@ -123,8 +133,8 @@ class BoardRenderer:
     def highlight_buildeable_tiles(self) -> None:
         selected = self.game_board.get_selected_tile()
         if selected:
-            if selected.getUnit():
-                if 'builder' in selected.getUnit().getTags() and selected.getUnit().getAttacks() >= 1:
+            if selected.get_unit():
+                if 'builder' in selected.get_unit().getTags() and selected.get_unit().getAttacks() >= 1:
                     for tile in self.game_board.buildable_tiles_from(selected):
                         self.highlight_tile(tile, COLORS.BLUE)
     
@@ -137,35 +147,35 @@ class BoardRenderer:
 
     def highlight_produceable_tiles(self) -> None:
         if self.game_board.get_click_state() == 'producing unit or acting':
-            for tile in self.game_board.empty_surrounding_tiles(self.game_board.selected_tile.getX(), self.game_board.selected_tile.getY()):
+            for tile in self.game_board.empty_surrounding_tiles(self.game_board.selected_tile.get_x(), self.game_board.selected_tile.get_y()):
                 self.highlight_tile(tile, COLORS.BLUE)
     
     def generate_production_actions(self) -> None:
         """Generate UI buttons based on game state"""
         self.UI.clearButtons()
         selected = self.game_board.get_selected_tile()
-        if (selected and selected.getUnit() and 
-            'factory' in selected.getUnit().getTags() and 
-            selected.getUnit().getPlayer() == self.game_board.get_player_acting()):
+        if (selected and selected.get_unit() and 
+            'factory' in selected.get_unit().getTags() and 
+            selected.get_unit().getPlayer() == self.game_board.get_player_acting()):
             
             production_functions = self.game_board.unit_production_functions_from(
-                selected.getX(), selected.getY(), self.tile_dimensions
+                selected.get_x(), selected.get_y(), self.tile_dimensions
             )
             self.UI.generateButtons(*production_functions)
-            self.UI.generateHotkeys(*self.game_board.hotkey_functions_from(selected.getX(), selected.getY(), self.tile_dimensions))
+            self.UI.generateHotkeys(*self.game_board.hotkey_functions_from(selected.get_x(), selected.get_y(), self.tile_dimensions))
         self.generate_build_actions()
     
     def generate_build_actions(self) -> None:
         selected = self.game_board.get_selected_tile()
-        if (selected and selected.getUnit() and 
-            'builder' in selected.getUnit().getTags() and 
-            selected.getUnit().getPlayer() == self.game_board.get_player_acting()):
+        if (selected and selected.get_unit() and 
+            'builder' in selected.get_unit().getTags() and 
+            selected.get_unit().getPlayer() == self.game_board.get_player_acting()):
             
             production_functions = self.game_board.unit_production_functions_from(
-                selected.getX(), selected.getY()
+                selected.get_x(), selected.get_y(), self.tile_dimensions
             )
             self.UI.generateButtons(*production_functions)
-            self.UI.generateHotkeys(*self.game_board.hotkey_functions_from(selected.getX(), selected.getY(), self.tile_dimensions))
+            self.UI.generateHotkeys(*self.game_board.hotkey_functions_from(selected.get_x(), selected.get_y(), self.tile_dimensions))
     
     # ==========================================================================
     # DRAWING METHODS
@@ -179,8 +189,8 @@ class BoardRenderer:
         """Draw a tile with the specified color"""
         self.change_color(color, tile)
         rect = (
-            tile.getX() * self.tile_dimensions,
-            tile.getY() * self.tile_dimensions,
+            tile.get_x() * self.tile_dimensions,
+            tile.get_y() * self.tile_dimensions,
             self.tile_dimensions,
             self.tile_dimensions
         )
@@ -192,8 +202,8 @@ class BoardRenderer:
     
     def update_image(self, tile: tile.Tile) -> None:
         """Draw unit image on tile if present"""
-        if tile.getUnit():
-            self.move_image(tile.getForeground(), tile.getX(), tile.getY())
+        if tile.get_unit():
+            self.move_image(tile.getForeground(), tile.get_x(), tile.get_y())
     
     def move_image(self, image: pygame.image.load, x: int, y: int) -> None:
         """Blit an image to the screen at tile coordinates"""

@@ -19,6 +19,11 @@ def unitFromStatsheet(statsheet, player, dimensions=20, prebuilt=False):
             multiplier=float(bonus[1]),
             exceptions=exceptions
         ))
+    
+    try:
+        image = pygame.transform.scale(imageColorConverter('statsheets/images/' + statList[11].split('=')[1], player), (dimensions,dimensions))
+    except:
+        image = None
 
     # Handle status_on_hit parameter (optional, may not exist in older statsheets)
     status_on_hit = None
@@ -39,7 +44,7 @@ def unitFromStatsheet(statsheet, player, dimensions=20, prebuilt=False):
         damageFalloff=float(statList[8].split('=')[1]),
         bonuses=unit.Bonuses(*bonusesList),
         tags=statList[10].split('=')[1].split(','),
-        image=pygame.transform.scale(imageColorConverter('statsheets/images/' + statList[11].split('=')[1], player), (dimensions,dimensions)),
+        image=image,
         player=player,
         attacks=int(statList[12].split('=')[1]),
         production=int(statList[13].split('=')[1]),
@@ -49,24 +54,26 @@ def unitFromStatsheet(statsheet, player, dimensions=20, prebuilt=False):
     )
 
 def imageColorConverter(image, player):
-    image = pygame.image.load(image)
+    try:
+        image = pygame.image.load(image).convert_alpha()
 
-    width, height = 40, 40
-    if player:
-        if player.getTeam():
-            colorSet = (255, 0, 0)
-        else:
-            colorSet = (0, 100, 255)
-    
-        for x in range(width):
-            for y in range(height):
-                color = image.get_at((x, y))
-                if color == (255, 0, 255, 255):
-                    image.set_at((x, y), colorSet)
+        width, height = 40, 40
+        if player:
+            if player.getTeam():
+                colorSet = (255, 0, 0)
+            else:
+                colorSet = (0, 100, 255)
+        
+            for x in range(width):
+                for y in range(height):
+                    color = image.get_at((x, y))
+                    if color == (255, 0, 255, 255):
+                        image.set_at((x, y), colorSet)
+    except pygame.error:
+        return None
     
     return image
 
-# Rest of your existing statreader code remains the same...
 testUnits = []
 for statsheetName in os.listdir('statsheets'):
     if statsheetName != 'images':

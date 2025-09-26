@@ -1,3 +1,4 @@
+import pygame
 import math
 from bonuses import *
 from status_effects import *
@@ -29,6 +30,7 @@ class Unit(object):
         self.hotkey = hotkey
         self.status_effects = []  # List to store active status effects
         self.status_on_hit = status_on_hit  # Status effect to apply when attacking
+        self.original_image = image  # Store original image for reference to keep resizing clean
         
         if 'produced by builder' in self.tags:
             self.buildProgress = 1
@@ -261,7 +263,7 @@ class Unit(object):
     def getPlayer(self):
         return self.player
 
-    def getImage(self):
+    def get_image(self) -> pygame.image:
         return self.image
 
     def doAttack(self):
@@ -288,3 +290,9 @@ class Unit(object):
         
     def setPlayer(self, player):
         self.player = player
+        
+    def set_image(self, image: pygame.image) -> None:
+        self.image = image
+
+    def get_original_image(self) -> pygame.image:
+        return self.original_image

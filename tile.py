@@ -10,7 +10,7 @@ class Tile(object):
     def getCords(self):
         return (self.x, self.y)
 
-    def getUnit(self):
+    def get_unit(self):
         return self.unit
 
     def removeUnit(self):
@@ -21,7 +21,7 @@ class Tile(object):
             self.removeUnit()
 
     def moveThroughable(self, player):
-        if self.getUnit():
+        if self.get_unit():
             return self.unit.moveThroughable(player)
         else:
             return True
@@ -41,14 +41,14 @@ class Tile(object):
     def changeOutline(self, color):
         self.outline = color
 
-    def getX(self):
+    def get_x(self):
         return self.x
 
-    def getY(self):
+    def get_y(self):
         return self.y
 
     def getForeground(self):
         if self.unit:
-            return self.unit.getImage()
+            return self.unit.get_image()
         else:
             return None
