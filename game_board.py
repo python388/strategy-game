@@ -18,8 +18,8 @@ class GameBoard:
         self.selected_tile = None
         self.second_selected_tile = None
         self.targeted_tile = None
-        self.player0 = player.Player(50, 0)
-        self.player1 = player.Player(50, 1)
+        self.player0 = player.Player(5, 0)
+        self.player1 = player.Player(5, 1)
         self.player_acting = self.player0
         self.statreader = statreader
         self.click_state = 'nothing selected'

@@ -29,9 +29,9 @@ class BoardRenderer:
             self.board_width + 20,
             65,
             UI.Button(
-                x=20,
-                y=20,
-                width=100, 
+                x=10,
+                y=5,
+                width=75, 
                 height=20,
                 label="next turn",
                 eventWhenClick=self.game_board.next_turn
