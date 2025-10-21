@@ -296,3 +296,6 @@ class Unit(object):
 
     def get_original_image(self) -> pygame.image:
         return self.original_image
+    
+    def is_building(self):
+        return False

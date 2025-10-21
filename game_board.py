@@ -389,22 +389,26 @@ class GameBoard:
         produceableUnits = self.statreader.units_with_tag(f'produced by {self.tile_at(x, y).get_unit().getName()}')
 
         for statsheet_name in produceableUnits:
+            cost = self.statreader.cost_of(statsheet_name)
+            name_label = statsheet_name[0:-4]
+
             if not empty_tiles:
-                produceable_unit_functions.append((statsheet_name[0:-4] + ' No Space', lambda: None))
+                produceable_unit_functions.append((name_label + ' No Space', lambda: None))
             elif 'builder' in self.selected_tile.get_unit().getTags() and self.selected_tile.get_unit().getAttacks() == 0:
-                produceable_unit_functions.append((statsheet_name[0:-4] + ' No Action', lambda: None))
+                produceable_unit_functions.append((name_label + ' No Action', lambda: None))
+            elif self.player_acting.getMoney() < cost:
+                produceable_unit_functions.append((f'{cost}: {name_label} - Insufficient Funds', lambda: None))
             else:
                 def click_function(statsheet_name):
                     def production_function(self, x, y):
-                        self.buy_unit(x, y, statsheet_name, dimensions)
-                        self.click_state = 'choosing action'
-                        if 'builder' in self.selected_tile.get_unit().getTags():
+                        if self.buy_unit(x, y, statsheet_name, dimensions) and 'builder' in self.selected_tile.get_unit().getTags():
                             self.selected_tile.get_unit().do_action()
+                        self.click_state = 'choosing action'
                     self.production_function = production_function
                     self.click_state = 'producing unit or acting'
                     self.clear_tile_selection()
                 produceable_unit_functions.append((
-                    f'{self.statreader.cost_of(statsheet_name)}: {statsheet_name[0:-4]}', 
+                    f'{cost}: {name_label}', 
                     lambda sn=statsheet_name: click_function(sn)
                 ))
         
@@ -423,10 +427,9 @@ class GameBoard:
             else:
                 def click_function(statsheet_name):
                     def production_function(self, x, y):
-                        self.buy_unit(x, y, statsheet_name, dimensions)
-                        self.click_state = 'choosing action'
-                        if 'builder' in self.selected_tile.get_unit().getTags():
+                        if self.buy_unit(x, y, statsheet_name, dimensions) and 'builder' in self.selected_tile.get_unit().getTags():
                             self.selected_tile.get_unit().do_action()
+                        self.click_state = 'choosing action'
                     self.production_function = production_function
                     self.click_state = 'producing unit or acting'
                     self.clear_tile_selection()
