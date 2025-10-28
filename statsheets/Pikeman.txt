@@ -1,0 +1,15 @@
+name=pikeman
+attack=6
+hp=15
+armor=1
+speed=3
+range=2
+cost=3
+area=0
+damageFalloff=0
+bonuses=machine:2.5,cavalry:3
+tags=infantry,melee,light armored,spear,produced by castle,alive
+image=spearmen.jpeg
+attacks=1
+production=0
+hotkey=n

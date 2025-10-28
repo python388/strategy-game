@@ -1,0 +1,15 @@
+name=knight
+attack=5
+hp=20
+armor=3
+speed=5
+range=1
+cost=5
+area=1
+damageFalloff=0
+bonuses=infantry:2,machine:3,structure:4
+tags=cavalry,medium armored,melee,fast,produced by castle,alive
+image=great swordsmen.jpeg
+attacks=1
+production=0
+hotkey=x
