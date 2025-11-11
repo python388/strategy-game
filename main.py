@@ -86,7 +86,7 @@ class StrategyGame:
                 self.handle_mouse_click(event.pos, event.button)
             
             elif event.type == pygame.VIDEORESIZE:
-                self.handle_resize(event)
+                self.handle_resize()
     
     def handle_keypress(self, key):
         """Handle keyboard input"""
@@ -108,8 +108,8 @@ class StrategyGame:
             except:
                 print(str(key) + " (not convertible to character via ascii)")
 
-    def handle_resize(self, event: pygame.event) -> None:
-        self.renderer.resize_window(event)
+    def handle_resize(self) -> None:
+        self.renderer.resize_window()
 
     def handle_mouse_click(self, pos, button):
         """Handle mouse clicks"""

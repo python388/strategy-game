@@ -34,6 +34,7 @@ class Tile(object):
 
     def addUnit(self, unit):
         self.unit = unit
+        self.unit.set_tile(self)
 
     def getOutline(self):
         return self.outline

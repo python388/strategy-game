@@ -21,7 +21,7 @@ def unitFromStatsheet(statsheet, player, dimensions=20, prebuilt=False):
         ))
     
     try:
-        image = pygame.transform.scale(imageColorConverter('statsheets/images/' + statList[11].split('=')[1], player), (dimensions,dimensions))
+        image = pygame.transform.scale(imageColorConverter('statsheets/images/' + statList[11].split('=')[1], player), (dimensions, dimensions))
     except:
         image = None
 

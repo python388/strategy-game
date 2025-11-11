@@ -37,6 +37,7 @@ class BoardRenderer:
                 eventWhenClick=self.game_board.next_turn
             )
         )
+        self.resize_window()
     
     def handle_click(self, pos: tuple) -> bool:
         """Handle mouse clicks - returns True if handled by UI"""
@@ -53,7 +54,7 @@ class BoardRenderer:
         """Convert screen coordinates to tile"""
         return self.game_board.tile_from_coords(position, self.tile_dimensions)
     
-    def resize_window(self, event: pygame.event) -> None:
+    def resize_window(self) -> None:
         # Update the screen surface to the new size
         self.window_width, self.window_height = self.window.get_size()
         self.tile_dimensions = min(int(self.window_width/(self.game_board.get_width() + 5)), int(self.window_height/self.game_board.get_height()))
@@ -87,6 +88,7 @@ class BoardRenderer:
         self.UI.showPlayerInfo(self.game_board.get_player_acting())
         self.UI.displayHotkeys()
         self.UI.display_turn_count(self.game_board.get_turn())
+        self.draw_healthbars()
     
     def reset_tiles(self) -> None:
         """Clear the screen and reset tile colors"""
@@ -184,6 +186,13 @@ class BoardRenderer:
     def change_color(self, color: str, tile: tile.Tile) -> None:
         """Change a tile's outline color"""
         tile.changeOutline(color)
+
+    def draw_healthbar(self, unit):
+        unit.get_healthbar().draw_healthbar(self.window, self.tile_dimensions, unit)
+
+    def draw_healthbars(self):
+        for unit in self.game_board.get_units():
+            self.draw_healthbar(unit)
     
     def draw_tile(self, color: str, tile: tile.Tile) -> None:
         """Draw a tile with the specified color"""

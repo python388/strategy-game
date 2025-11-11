@@ -6,5 +6,6 @@ class Colors(object):
     BLACK = (0, 0, 0)
     LBLUE = (100, 100, 255)
     YELLOW = (255, 255, 0)
+    LGREEN = (0, 191, 0)
 
 COLORS = Colors()

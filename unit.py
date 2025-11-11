@@ -2,12 +2,13 @@ import pygame
 import math
 from bonuses import *
 from status_effects import *
+import healthbars
 
 class Unit(object):
     def __init__(self, name='None', attacks=1, attack=5, hp=10, armor=0, speed=3, range=1, 
                  cost=2, area=0, damageFalloff=0, bonuses=Bonuses(), tags='none', 
                  carryCapacity=0, production=0, image=None, player=0, hotkey='-', 
-                 inProgress=True, buildcost=False, status_on_hit=None):
+                 inProgress=True, buildcost=False, status_on_hit=None, tile=None):
         self.name = name
         self.maxAttacks = attacks
         self.attacks = self.maxAttacks
@@ -31,6 +32,7 @@ class Unit(object):
         self.status_effects = []  # List to store active status effects
         self.status_on_hit = status_on_hit  # Status effect to apply when attacking
         self.original_image = image  # Store original image for reference to keep resizing clean
+        self.healthbar = healthbars.Healthbar(self)
         
         if 'produced by builder' in self.tags:
             self.buildProgress = 1
@@ -41,6 +43,15 @@ class Unit(object):
                 self.buildCost = self.cost
         else:
             self.inProgress = False
+
+    def get_x(self):
+        return self.tile.get_x()
+    
+    def get_healthbar(self):
+        return self.healthbar
+    
+    def get_y(self):
+        return self.tile.get_y()
 
     def add_status_effect(self, status_effect):
         """Add a status effect to the unit"""
@@ -299,3 +310,6 @@ class Unit(object):
     
     def is_building(self):
         return False
+
+    def set_tile(self, tile):
+        self.tile = tile
