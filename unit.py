@@ -255,6 +255,7 @@ class Unit(object):
     def takeDamage(self, damage):
         self.hp -= max(round(damage) - self.getArmor(), 1)
         if self.hp <= 0:
+            del self.healthbar
             return True
         else:
             return False
