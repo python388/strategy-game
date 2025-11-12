@@ -32,6 +32,13 @@ def unitFromStatsheet(statsheet, player, dimensions=20, prebuilt=False):
         if len(status_line) > 1 and status_line[1].strip():
             status_on_hit = status_line[1].strip()
 
+    # carry capacity from statsheets tries to see if it exists 
+    # if not, it sets to default value
+    try:
+        carry_capacity = int(statList[15].split('=')[1])
+    except:
+        carry_capacity = 0
+        
     return unit.Unit(
         name=statList[0].split('=')[1],
         attack=int(statList[1].split('=')[1]),
@@ -50,6 +57,7 @@ def unitFromStatsheet(statsheet, player, dimensions=20, prebuilt=False):
         production=int(statList[13].split('=')[1]),
         hotkey=(statList[14].split('=')[1]),
         inProgress=not(prebuilt),
+        carryCapacity = carry_capacity,
         status_on_hit=status_on_hit
     )
 

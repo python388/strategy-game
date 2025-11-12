@@ -107,13 +107,13 @@ class BoardRenderer:
         if selected:
             self.change_color(COLORS.RED, selected)
             if selected.get_unit():
-                self.UI.displayStats(selected.get_unit())
+                self.UI.displayStats(selected)
 
         if building:
             self.change_color(COLORS.GREEN, building)
         
         if second_selected:
-            color = COLORS.GREEN if second_selected.occupiable() else COLORS.RED
+            color = COLORS.GREEN if second_selected.tileEmpty() else COLORS.RED
             self.change_color(color, second_selected)
         
         if targeted:

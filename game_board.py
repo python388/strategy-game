@@ -119,9 +119,18 @@ class GameBoard:
     def move(self, start, destination):
         """Move a unit from start to destination"""
         if start.get_unit():
-            start.get_unit().doMove()
-            destination.addUnit(start.get_unit())
-            start.removeUnit()
+            start.get_active_unit().doMove()
+            # handles all movement carrying logic
+            if destination.unit:
+                destination.unit.addCarried(start.get_active_unit())
+            else:
+                destination.addUnit(start.get_active_unit())
+            if start.get_unit() != start.get_active_unit():
+                start.get_unit().carrying.remove(start.get_active_unit())
+                start.activeUnit = start.unit
+            else:
+                start.removeUnit()
+                
     
     def choose_action(self, tile_clicked):
         acted = 0
@@ -211,16 +220,20 @@ class GameBoard:
     def moveable_tiles_from(self, start_tile):
         """Get all tiles a unit can move to"""
         move_options = []
-
-        if start_tile.get_unit():
-            possible_moves = self.get_reachable_squares(start_tile, start_tile.get_unit().getSpeed())
-            if start_tile.get_unit().canMove() and start_tile.get_unit().getPlayer() == self.player_acting:
+        
+        # changed occupiable to tileEmpty for carry capacity reasons
+        if start_tile.get_active_unit():
+            possible_moves = self.get_reachable_squares(start_tile, start_tile.get_active_unit().getSpeed())
+            if start_tile.get_active_unit().canMove() and start_tile.get_active_unit().getPlayer() == self.player_acting:
                 for move in possible_moves:
                     square = self.tiles[move[1]][move[0]]
-                    if square.occupiable() and square != start_tile:
-                        if self.distance_between(start_tile, square) <= start_tile.get_unit().getSpeed():
+                    if square.tileEmpty() and square != start_tile:
+                        if self.distance_between(start_tile, square) <= start_tile.get_active_unit().getSpeed():
                             move_options.append(square)
-        
+                    elif square.canCarry(start_tile) and square != start_tile:
+                        if self.distance_between(start_tile, square) <= start_tile.get_active_unit().getSpeed() and not(start_tile.activeUnit.carryCapacity !=0):
+                            move_options.append(square)
+                
         return move_options
     
     def buildable_tiles_from(self, start_tile):
@@ -377,7 +390,7 @@ class GameBoard:
 
     def empty_surrounding_tiles(self, x, y):
         """Get all empty tiles surrounding a position"""
-        return [tile for tile in self.surrounding_tiles(x, y) if tile.occupiable()]
+        return [tile for tile in self.surrounding_tiles(x, y) if tile.tileEmpty()]
     
     def production_function(self):
         pass

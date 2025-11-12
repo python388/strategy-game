@@ -6,6 +6,8 @@ class Tile(object):
         self.y = y
         self.outline = outline
         self.unit = unit
+        # active unit is for movement calculation (so a carried troop can move out of another troop)
+        self.activeUnit = unit
 
     def getCords(self):
         return (self.x, self.y)
@@ -26,14 +28,26 @@ class Tile(object):
         else:
             return True
     
-    def occupiable(self):
+    #checks if a tile has a unit that can carry other units
+    def canCarry(self, startingTile):
+        if self.unit:
+            if self.unit.carryCapacity != 0 and len(self.unit.carrying) < self.unit.carryCapacity and self.unit.player == startingTile.unit.player:
+                return True
+            else:
+                return False
+        
+    def getCarriedUnits(self):
+        return self.unit.carrying
+    
+    def tileEmpty(self):
         if self.unit == None:
             return True
-        else:
-            return False
+        else: 
+            return False 
 
     def addUnit(self, unit):
         self.unit = unit
+        self.activeUnit = unit
         self.unit.set_tile(self)
 
     def getOutline(self):
@@ -53,3 +67,9 @@ class Tile(object):
             return self.unit.get_image()
         else:
             return None
+    
+    def set_active_unit(self, carriedIndex):
+        self.ActiveUnit = self.get_unit().carried[carriedIndex]
+
+    def get_active_unit(self):
+        return self.activeUnit

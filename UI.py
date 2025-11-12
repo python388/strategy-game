@@ -1,5 +1,6 @@
 import pygame
 import math
+from functools import partial
 REFERENCE_FONT_SIZE = 20
 BASE_SCALE = (400, 800)
 
@@ -36,9 +37,20 @@ class UI(object):
         text = font.render(write.encode('utf-8'), True, (0, 0, 0))
         self.surface.blit(text, (x, y))
         # [ord(char) for char in text]
-        
-    def displayStats(self, unit):
+
+    def carryButtonEvent(self, tile, item):
+        tile.activeUnit = item
+
+    def carryingButtons(self, tile):
+        buttons = []
+        for item in tile.get_unit().carrying:
+            buttonFunc = partial(self.carryButtonEvent, tile, item)
+            buttons.append((item.name, buttonFunc))
+        self.generateButtons(*buttons)
+
+    def displayStats(self, selectedTile):
         # Basic stats
+        unit = selectedTile.get_unit()
         self.drawText(self.UIstartX, self.y_scaler * (self.UIstartY-15), 'Attack:')
         self.drawText(self.UIstartX, self.UIstartY * self.y_scaler, str(unit.getAttack()))
         self.drawText(self.UIstartX+(self.x_scaler * 50), self.y_scaler * (self.UIstartY-15), 'Health:')
@@ -48,7 +60,9 @@ class UI(object):
         self.drawText(self.UIstartX+(self.x_scaler * 50), self.y_scaler * (self.UIstartY+15), 'attacks:')
         self.drawText(self.UIstartX+(self.x_scaler * 50), self.y_scaler * (self.UIstartY+30), str(unit.getAttacks()))
         self.drawText(self.UIstartX, self.y_scaler * (self.UIstartY+45), unit.getName())
-        
+        if len(unit.carrying) >= 1:
+            self.carryingButtons(selectedTile)
+            self.drawButtons()
         # Construction status
         if unit.is_under_construction():
             self.drawText(self.UIstartX, self.y_scaler * (self.UIstartY+60), f'Under Construction: {unit.get_build_progress()}/{unit.get_build_cost()}')

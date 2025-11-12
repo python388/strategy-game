@@ -29,6 +29,8 @@ class Unit(object):
         self.image = image
         self.production = production
         self.hotkey = hotkey
+        self.carryCapacity = carryCapacity
+        self.carrying = [] # stores units that are being carried
         self.status_effects = []  # List to store active status effects
         self.status_on_hit = status_on_hit  # Status effect to apply when attacking
         self.original_image = image  # Store original image for reference to keep resizing clean
@@ -299,6 +301,10 @@ class Unit(object):
     def nextTurn(self):
         self.attacks = self.maxAttacks
         self.hasMoved = 0
+        if len(self.carrying) >= 1:
+            for items in self.carrying:
+                items.hasMoved = 0
+                items.attacks = items.maxAttacks
         
     def setPlayer(self, player):
         self.player = player
@@ -314,3 +320,8 @@ class Unit(object):
 
     def set_tile(self, tile):
         self.tile = tile
+
+    # self.carried is a list of all the units that are being held
+    def addCarried(self, carried):
+        self.carrying.append(carried)
+    
