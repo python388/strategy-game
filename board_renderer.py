@@ -113,7 +113,7 @@ class BoardRenderer:
             self.change_color(COLORS.GREEN, building)
         
         if second_selected:
-            color = COLORS.GREEN if second_selected.tileEmpty() else COLORS.RED
+            color = COLORS.GREEN
             self.change_color(color, second_selected)
         
         if targeted:
