@@ -108,7 +108,7 @@ class GameBoard:
             if tile_clicked in self.empty_surrounding_tiles(self.selected_tile.get_x(), self.selected_tile.get_y()):
                 self.production_function(self, tile_clicked.get_x(), tile_clicked.get_y())
             else:
-                self.choose_action()
+                self.choose_action(tile_clicked)
         else:
             self.clear_tile_selection()
             self.selected_tile = tile_clicked

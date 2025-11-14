@@ -20,7 +20,13 @@ class Tile(object):
 
     def damageUnit(self, damage):
         if self.unit.takeDamage(damage):
+            if len(self.unit.carrying) > 0:
+                x = self.unit.carrying[0]
+            else:
+                x = False
             self.removeUnit()
+            if x:
+                self.addUnit(x)                            
 
     def moveThroughable(self, player):
         if self.get_unit():
