@@ -135,7 +135,7 @@ class GameBoard:
     def choose_action(self, tile_clicked):
         acted = 0
         if tile_clicked in self.moveable_tiles_from(self.selected_tile):
-            self.clear_tile_selection
+            self.clear_tile_selection()
             self.second_selected_tile = tile_clicked
             acted = 1
         elif tile_clicked in self.attackable_tiles_from(self.selected_tile):
