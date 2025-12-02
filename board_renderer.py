@@ -129,8 +129,9 @@ class BoardRenderer:
         """Highlight tiles the selected unit can move to"""
         selected = self.game_board.get_selected_tile()
         if selected:
-            for tile in self.game_board.moveable_tiles_from(selected):
-                self.highlight_tile(tile, COLORS.LBLUE)
+            if selected.unit:
+                for tile in self.game_board.moveable_tiles_from(selected):
+                    self.highlight_tile(tile, COLORS.LBLUE)
 
     def highlight_buildeable_tiles(self) -> None:
         selected = self.game_board.get_selected_tile()

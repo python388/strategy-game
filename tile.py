@@ -41,6 +41,8 @@ class Tile(object):
                 return True
             else:
                 return False
+        else:
+            return False
         
     def getCarriedUnits(self):
         return self.unit.carrying

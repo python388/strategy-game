@@ -139,17 +139,18 @@ class GameBoard:
             self.second_selected_tile = tile_clicked
             acted = 1
         elif tile_clicked in self.attackable_tiles_from(self.selected_tile):
-            self.clear_tile_selection
+            self.clear_tile_selection()
             self.targeted_tile = tile_clicked
             acted = 1
         elif 'builder' in self.selected_tile.get_unit().getTags():
             if tile_clicked in self.buildable_tiles_from(self.selected_tile) and self.selected_tile.get_unit().getAttacks() >= 1:
-                self.clear_tile_selection
+                self.clear_tile_selection()
                 self.building_tile = tile_clicked
                 acted = 1
         if not(acted):
             self.selected_tile = tile_clicked
             self.clear_tile_selection()
+            self.click_state = 'choosing action'
 
     def attack(self, start, target):
         """Handle combat between units, including status effects"""
