@@ -162,9 +162,8 @@ class BoardRenderer:
             x = items[0]
             y = items[1]
             tile = self.game_board.tile_at(x, y)           
-            self.change_color(COLORS.YELLOW, tile)
+            self.change_color(COLORS.TAN, tile)
             
-
     def generate_production_actions(self) -> None:
         """Generate UI buttons based on game state"""
         self.UI.clearButtons()
