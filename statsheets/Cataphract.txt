@@ -1,11 +1,11 @@
 name=Cataphract
 attack=8
-hp=20
+hp=25
 armor=4
 speed=4
 range=1
 cost=6
-area=1
+area=0
 damageFalloff=0
 bonuses=infantry:1.5,machine:2
 tags=cavalry,heavy armored,melee,produced by castle,alive
