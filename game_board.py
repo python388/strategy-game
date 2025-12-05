@@ -6,6 +6,7 @@ import player
 from collections import deque
 import copy
 import unit
+import mines
 
 class GameBoard:
     """Handles pure game logic - no rendering or pygame dependencies"""
@@ -356,9 +357,12 @@ class GameBoard:
         for unit in self.units_of_player(player):
             if not(unit.is_under_construction()):
                 income += unit.getProduction()
-        player.makeIncome(income)
-    
-
+        for coords in mines.mineCoords:
+            mine = self.tile_at(coords[0], coords[1])
+            if mine.get_unit():
+                if mine.get_unit().getPlayer() == player:
+                    income += 1
+        player.makeIncome(income)      
 
     def units_of_player(self, player: player.Player) -> list:
         """Get all units belonging to a player"""

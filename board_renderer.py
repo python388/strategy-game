@@ -5,6 +5,7 @@ from colors import COLORS
 import UI
 import game_board
 import tile
+import mines
 
 class BoardRenderer:
     """Handles all visual rendering of the game board"""
@@ -84,11 +85,14 @@ class BoardRenderer:
         self.highlight_attackable_tiles()
         self.highlight_produceable_tiles()
         self.highlight_buildeable_tiles()
+        self.highlight_mines()
         self.color_tiles()
         self.UI.showPlayerInfo(self.game_board.get_player_acting())
         self.UI.displayHotkeys()
         self.UI.display_turn_count(self.game_board.get_turn())
         self.draw_healthbars()
+
+
     
     def reset_tiles(self) -> None:
         """Clear the screen and reset tile colors"""
@@ -153,6 +157,14 @@ class BoardRenderer:
             for tile in self.game_board.empty_surrounding_tiles(self.game_board.selected_tile.get_x(), self.game_board.selected_tile.get_y()):
                 self.highlight_tile(tile, COLORS.BLUE)
     
+    def highlight_mines(self):
+        for items in mines.mineCoords:    
+            x = items[0]
+            y = items[1]
+            tile = self.game_board.tile_at(x, y)           
+            self.change_color(COLORS.YELLOW, tile)
+            
+
     def generate_production_actions(self) -> None:
         """Generate UI buttons based on game state"""
         self.UI.clearButtons()
