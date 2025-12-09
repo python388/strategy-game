@@ -37,7 +37,14 @@ class UI(object):
         text = font.render(write.encode('utf-8'), True, (0, 0, 0))
         self.surface.blit(text, (x, y))
         # [ord(char) for char in text]
-
+    
+    def centerText(self, write, width, height):
+        font = pygame.font.Font(None, self.font_size)
+        textWidth, textHeight = font.size(write)
+        y = abs((height-textHeight)/2)
+        x = abs((width-textWidth)/2)
+        return x, y
+    
     def carryButtonEvent(self, tile, item):
         tile.activeUnit = item
 
@@ -134,7 +141,8 @@ class UI(object):
 
     def drawButton(self, button):
         pygame.draw.rect(self.surface, (0, 128, 255), [button.getX(), button.getY(), button.getWidth(), button.getHeight()])
-        self.drawText(button.getX(), button.getY(), button.getLabel())
+        x, y = self.centerText(button.getLabel(), button.getWidth(), button.getHeight())
+        self.drawText(button.getX() + x, button.getY() + y, button.getLabel())
         
     def set_start(self, x: int, y: int) -> None:
         self.UIstartX = x
