@@ -65,7 +65,7 @@ def imageColorConverter(image, player):
     try:
         image = pygame.image.load(image).convert_alpha()
 
-        width, height = 40, 40
+        width, height = image.get_width(), image.get_height()
         if player:
             if player.getTeam():
                 colorSet = (255, 0, 0)
@@ -75,7 +75,7 @@ def imageColorConverter(image, player):
             for x in range(width):
                 for y in range(height):
                     color = image.get_at((x, y))
-                    if color == (255, 0, 255, 255):
+                    if color == (255, 0, 255):
                         image.set_at((x, y), colorSet)
     except pygame.error:
         return None
