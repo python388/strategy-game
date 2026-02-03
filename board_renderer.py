@@ -181,7 +181,7 @@ class BoardRenderer:
     def generate_build_actions(self) -> None:
         selected = self.game_board.get_selected_tile()
         if (selected and selected.get_unit() and 
-            'builder' in selected.get_unit().getTags() and 
+            selected.get_unit().getName().lower() == 'builder' and 
             selected.get_unit().getPlayer() == self.game_board.get_player_acting()):
             
             production_functions = self.game_board.unit_production_functions_from(

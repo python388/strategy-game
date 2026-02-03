@@ -425,14 +425,14 @@ class GameBoard:
 
             if not empty_tiles:
                 produceable_unit_functions.append((name_label + ' No Space', lambda: None))
-            elif 'builder' in self.selected_tile.get_unit().getTags() and self.selected_tile.get_unit().getAttacks() == 0:
+            elif self.selected_tile.get_unit().getName().lower() == 'builder' and self.selected_tile.get_unit().getAttacks() == 0:
                 produceable_unit_functions.append((name_label + ' No Action', lambda: None))
             elif self.player_acting.getMoney() < cost:
                 produceable_unit_functions.append((f'{cost}: {name_label} - Insufficient Funds', lambda: None))
             else:
                 def click_function(statsheet_name):
                     def production_function(self, x, y):
-                        if self.buy_unit(x, y, statsheet_name, dimensions) and 'builder' in self.selected_tile.get_unit().getTags():
+                        if self.buy_unit(x, y, statsheet_name, dimensions) and self.selected_tile.get_unit().getName().lower() == 'builder':
                             self.selected_tile.get_unit().do_action()
                         self.click_state = 'choosing action'
                     self.production_function = production_function
@@ -453,12 +453,12 @@ class GameBoard:
         for statsheet_name in produceableUnits:
             if not empty_tiles:
                 pass
-            elif 'builder' in self.selected_tile.get_unit().getTags() and self.selected_tile.get_unit().getAttacks() == 0:
+            elif self.selected_tile.get_unit().getName().lower() == 'builder' and self.selected_tile.get_unit().getAttacks() == 0:
                 pass
             else:
                 def click_function(statsheet_name):
                     def production_function(self, x, y):
-                        if self.buy_unit(x, y, statsheet_name, dimensions) and 'builder' in self.selected_tile.get_unit().getTags():
+                        if self.buy_unit(x, y, statsheet_name, dimensions) and self.selected_tile.get_unit().getName().lower() == 'builder':
                             self.selected_tile.get_unit().do_action()
                         self.click_state = 'choosing action'
                     self.production_function = production_function
