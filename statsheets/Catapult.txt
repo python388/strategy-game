@@ -1,0 +1,15 @@
+name=Catapult
+attack=15
+hp=20
+armor=4
+speed=2
+range=6
+cost=8
+area=1
+damageFalloff=0.5
+bonuses=heavy armored:1.5,machine:2,structure:2
+tags=siege,produced by castle,machine,burnable
+image=catapult.jpeg
+attacks=1
+production=0
+hotkey=-

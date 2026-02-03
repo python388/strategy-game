@@ -79,7 +79,6 @@ class BoardRenderer:
     def update_all(self) -> None:
         """Update all visual elements"""
         self.reset_tiles()
-        self.generate_production_actions()
         self.UI.drawButtons()
         self.highlight_moveable_tiles()
         self.highlight_attackable_tiles()
@@ -91,7 +90,7 @@ class BoardRenderer:
         self.UI.displayHotkeys()
         self.UI.display_turn_count(self.game_board.get_turn())
         self.draw_healthbars()
-
+        self.generate_production_actions()
 
     
     def reset_tiles(self) -> None:

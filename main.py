@@ -3,6 +3,7 @@ import sys
 from game_board import GameBoard
 from board_renderer import BoardRenderer
 import statreader
+import ai
 from colors import COLORS
 
 # Game Constants
@@ -49,6 +50,11 @@ class StrategyGame:
         print("Castle scenario loaded!")
         print(f"Player 0 (Blue): {self.game_board.get_player_num(0).getMoney()} gold")
         print(f"Player 1 (Red): {self.game_board.get_player_num(1).getMoney()} gold")
+
+        # Register a simple heuristic AI for Player 1 (Red)
+        # You can toggle this or register different AI controllers as needed
+        self.game_board.get_player_num(1).setIsAI(True)
+        self.game_board.register_ai(self.game_board.get_player_num(1), ai.HeuristicAI(self.game_board.get_player_num(1)))
     
     def _build_castle(self, player_id, castle_y, wall_y, gate_y, archer_y):
         """Helper to build one player's castle complex"""

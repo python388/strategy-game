@@ -8,5 +8,6 @@ class Healthbar(object):
     def draw_healthbar(self, screen, tiledimensions, unit):
         left = (self.unit.get_x() * tiledimensions) + (2 * tiledimensions)/16
         top = (self.unit.get_y() * tiledimensions) + (2 * tiledimensions)/16
-        pygame.draw.rect(screen, colors.COLORS.RED, (left, top, tiledimensions * 0.75, tiledimensions * 0.10))
-        pygame.draw.rect(screen, colors.COLORS.GREEN, (left, top, tiledimensions * (unit.getHp()/unit.getMaxHp()) * 0.75, tiledimensions * 0.10))
+        if unit.getHp() < unit.getMaxHp():
+            pygame.draw.rect(screen, colors.COLORS.RED, (left, top, tiledimensions * 0.75, tiledimensions * 0.10))
+            pygame.draw.rect(screen, colors.COLORS.GREEN, (left, top, tiledimensions * (unit.getHp()/unit.getMaxHp()) * 0.75, tiledimensions * 0.10))

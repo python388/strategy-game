@@ -25,6 +25,8 @@ class GameBoard:
         self.statreader = statreader
         self.click_state = 'nothing selected'
         self.building_tile = None
+        # Mapping of player -> AI controller (if any)
+        self.ai_controllers = {}
         
         # Initialize empty board
         for y in range(self.height):
@@ -214,10 +216,21 @@ class GameBoard:
         
         # Process income
         self.do_income(self.player_acting)
+
+        # If there's an AI controller for the new active player, run it
+        if self.player_acting in getattr(self, 'ai_controllers', {}):
+            try:
+                self.ai_controllers[self.player_acting].take_turn(self)
+            except Exception as e:
+                print(f"AI error: {e}")
     
     # ==========================================================================
     # MOVEMENT AND ATTACK LOGIC
     # ==========================================================================
+
+    def register_ai(self, player, controller):
+        """Register an AI controller for a player"""
+        self.ai_controllers[player] = controller
     
     def moveable_tiles_from(self, start_tile):
         """Get all tiles a unit can move to"""
