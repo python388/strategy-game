@@ -13,3 +13,4 @@ image=archer.jpeg
 attacks=1
 production=0
 hotkey=q
+carry=5

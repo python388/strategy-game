@@ -14,6 +14,12 @@ class UI(object):
         self.UIstartY = UIstartY
         self.UIstartX = UIstartX
         self.currentButtonList = []
+        # Full list of production entries (name, function) when generating many buttons
+        self.currentButtonEntries = []
+        # Scroll state for production menu
+        self.production_scroll_index = 0
+        # How many production buttons to show at once
+        self.production_view_count = 6
         self.keybinds = []
         self.window_width = BASE_SCALE[0]
         self.window_height = BASE_SCALE[1]
@@ -28,6 +34,7 @@ class UI(object):
         self.next_turn_y = buttons[0].y
 
     def doClick(self, location):
+        # Check regular buttons
         for button in self.buttons:
             if location[0] >= button.x and location[0] <= button.x+button.width and location[1] >= button.y and location[1] <= button.y+button.height:
                 button.eventWhenClick()
@@ -49,11 +56,28 @@ class UI(object):
         tile.activeUnit = item
 
     def carryingButtons(self, tile):
-        buttons = []
+        # Remove existing carried unit buttons from main list
+        for button in list(self.currentButtonList):
+            if button in self.buttons:
+                self.buttons.remove(button)
+        self.currentButtonList = []
+        
+        start_pos = 65
         for item in tile.get_unit().carrying:
+            is_active = (item == tile.activeUnit)
             buttonFunc = partial(self.carryButtonEvent, tile, item)
-            buttons.append((item.name, buttonFunc))
-        self.generateButtons(*buttons)
+            btn = Button(
+                x = self.UIstartX,
+                y = int(self.y_scaler * (self.UIstartY + start_pos)),
+                width = int(150 * self.x_scaler),
+                height = int(15 * self.y_scaler),
+                label = item.name,
+                eventWhenClick=buttonFunc,
+                is_highlighted=is_active
+            )
+            self.currentButtonList.append(btn)
+            self.buttons.append(btn)
+            start_pos += 20
 
     def displayStats(self, selectedTile):
         # Basic stats
@@ -110,29 +134,100 @@ class UI(object):
             self.drawButton(button)
 
     def clearButtons(self):
-        for button in self.currentButtonList:
-            self.buttons.remove(button)
+        for button in list(self.currentButtonList):
+            if button in self.buttons:
+                self.buttons.remove(button)
         self.currentButtonList = []
+        self.currentButtonEntries = []
+        self.production_scroll_index = 0
 
     def generateButtons(self, *nameFuncsLst):
-        start_pos = 65
+        # Store the full entries and render a windowed subset with scrolling
+        new_entries = list(nameFuncsLst)
+        
+        # Only reset scroll index if entries changed (different count or transitioning from empty)
+        if len(new_entries) != len(self.currentButtonEntries):
+            self.production_scroll_index = 0
+        
+        self.currentButtonEntries = new_entries
+        self._refresh_visible_buttons()
+
+    def get_page_info(self):
+        """Return page number info as string (e.g., 'Page 1 of 3')"""
+        if not self.currentButtonEntries:
+            return ""
+        current_page = (self.production_scroll_index // self.production_view_count) + 1
+        total_pages = (len(self.currentButtonEntries) + self.production_view_count - 1) // self.production_view_count
+        return f"Page {current_page} of {total_pages}"
+
+    def _refresh_visible_buttons(self):
+        # Remove existing visible buttons
+        for button in list(self.currentButtonList):
+            if button in self.buttons:
+                self.buttons.remove(button)
         self.currentButtonList = []
-        for name, function in nameFuncsLst:
-            self.currentButtonList.append(Button(
+
+        start_pos = 65
+        
+        # Create visible buttons from the current scroll index
+        end_index = min(len(self.currentButtonEntries), self.production_scroll_index + self.production_view_count)
+        for name, function in self.currentButtonEntries[self.production_scroll_index:end_index]:
+            btn = Button(
                 x = self.UIstartX,
-                y = self.y_scaler * (self.UIstartY + start_pos),
-                width = 150 * self.x_scaler,
-                height = 15 * self.y_scaler,
+                y = int(self.y_scaler * (self.UIstartY + start_pos)),
+                width = int(150 * self.x_scaler),
+                height = int(15 * self.y_scaler),
                 label = name,
-                eventWhenClick=function
-            ))
-            self.buttons.append(self.currentButtonList[-1])
+                eventWhenClick=function,
+                is_highlighted=False
+            )
+            self.currentButtonList.append(btn)
+            self.buttons.append(btn)
             start_pos += 20
+        
+        # Add Previous button if not on first page
+        if self.production_scroll_index > 0:
+            prev_btn = Button(
+                x = self.UIstartX,
+                y = int(self.y_scaler * (self.UIstartY + start_pos + 5)),
+                width = int(70 * self.x_scaler),
+                height = int(15 * self.y_scaler),
+                label = "< Prev",
+                eventWhenClick=self.scroll_up,
+                is_highlighted=False
+            )
+            self.currentButtonList.append(prev_btn)
+            self.buttons.append(prev_btn)
+        
+        # Add Next button if not on last page
+        if self.production_scroll_index + self.production_view_count < len(self.currentButtonEntries):
+            next_btn = Button(
+                x = self.UIstartX + int(80 * self.x_scaler),
+                y = int(self.y_scaler * (self.UIstartY + start_pos + 5)),
+                width = int(70 * self.x_scaler),
+                height = int(15 * self.y_scaler),
+                label = "Next >",
+                eventWhenClick=self.scroll_down,
+                is_highlighted=False
+            )
+            self.currentButtonList.append(next_btn)
+            self.buttons.append(next_btn)
 
     def generateHotkeys(self, *hotkeyFuncsLst):
         self.keybinds = []
         for hotkey, function, name in hotkeyFuncsLst:
             self.keybinds.append((hotkey, function, name))
+
+    def scroll_up(self):
+        if self.production_scroll_index > 0:
+            self.production_scroll_index -= self.production_view_count
+            self.production_scroll_index = max(0, self.production_scroll_index)
+            self._refresh_visible_buttons()
+
+    def scroll_down(self):
+        if self.production_scroll_index + self.production_view_count < len(self.currentButtonEntries):
+            self.production_scroll_index += self.production_view_count
+            self._refresh_visible_buttons()
 
     def handle_keypress(self, key):
         for hotkey, function, name in self.keybinds:
@@ -140,7 +235,9 @@ class UI(object):
                 function()
 
     def drawButton(self, button):
-        pygame.draw.rect(self.surface, (0, 128, 255), [button.getX(), button.getY(), button.getWidth(), button.getHeight()])
+        # Use yellow for highlighted buttons, blue for normal
+        button_color = (255, 200, 0) if button.is_highlighted else (0, 128, 255)
+        pygame.draw.rect(self.surface, button_color, [button.getX(), button.getY(), button.getWidth(), button.getHeight()])
         x, y = self.centerText(button.getLabel(), button.getWidth(), button.getHeight())
         self.drawText(button.getX() + x, button.getY() + y, button.getLabel())
         
@@ -176,13 +273,14 @@ class UI(object):
   
 class Button(object):
   
-    def __init__(self, x, y, width, height, label, eventWhenClick):
+    def __init__(self, x, y, width, height, label, eventWhenClick, is_highlighted=False):
         self.x = x
         self.y = y
         self.width = width
         self.height = height
         self.label = label
         self.eventWhenClick = eventWhenClick
+        self.is_highlighted = is_highlighted
 
     def getX(self):
         return self.x

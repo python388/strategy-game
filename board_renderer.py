@@ -23,6 +23,9 @@ class BoardRenderer:
         
         self.window = pygame.display.set_mode((self.window_width, self.window_height), pygame.RESIZABLE)
         
+        # Track last selected tile for production menu persistence
+        self.last_selected_tile = None
+        
         # Initialize UI
         self.UI = UI.UI(
             self.board_width,
@@ -35,7 +38,8 @@ class BoardRenderer:
                 width=75, 
                 height=20,
                 label="next turn",
-                eventWhenClick=self.game_board.next_turn
+                eventWhenClick=self.game_board.next_turn,
+                is_highlighted=False
             )
         )
         self.resize_window()
@@ -91,6 +95,10 @@ class BoardRenderer:
         self.UI.display_turn_count(self.game_board.get_turn())
         self.draw_healthbars()
         self.generate_production_actions()
+        # Display page info for production menu
+        page_info = self.UI.get_page_info()
+        if page_info:
+            self.UI.drawText(self.UI.UIstartX, self.UI.y_scaler * (self.UI.UIstartY + 180), page_info)
 
     
     def reset_tiles(self) -> None:
@@ -165,8 +173,13 @@ class BoardRenderer:
             
     def generate_production_actions(self) -> None:
         """Generate UI buttons based on game state"""
-        self.UI.clearButtons()
         selected = self.game_board.get_selected_tile()
+        
+        # Only clear and reset if selection changed
+        if selected != self.last_selected_tile:
+            self.UI.clearButtons()
+            self.last_selected_tile = selected
+        
         if (selected and selected.get_unit() and 
             'factory' in selected.get_unit().getTags() and 
             selected.get_unit().getPlayer() == self.game_board.get_player_acting()):
